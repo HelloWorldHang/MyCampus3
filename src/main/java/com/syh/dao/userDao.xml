@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syh.dao.UserDao">
+	<!-- 这种方式要和数据库交互两次，发出两次sql语句，但是数据库返回的数据没有冗余 -->
+	<!-- 
+		<resultMap type="user" id="UserMap">
+			<id property="sno" column="sno"/>
+			<result property="username" column="username"/>
+			<result property="password" column="password"/>
+			<result property="type" column="type"/>
+			<result property="deptno" column="deptno"/>
+			<association property="dept" select="getDept" column="deptno" javaType="Dept">
+		    </association>
+		</resultMap>
+		<select id="selectUserBySno" resultMap="UserMap">
+			select * from tb_user where sno=#{sno}
+		</select>
+		<select id="getDept"  resultType="dept" parameterType="int">
+			select * from tb_dept where id=#{deptno}
+		</select>
+	 -->
+<!-- 只与数据库交互一次，只发出一次sql语句，但是数据库返回数据存在主表信息冗余，
+	冗余数据为主表内容，冗余次数为从表中满足条件的记录数。 -->
+	<!-- 一对一查询 -->
+	<resultMap type="user" id="UserMap">
+		<id property="sno" column="sno" />
+		<result property="username" column="username" />
+		<result property="gender" column="gender" />
+		<result property="img" column="img" />
+		<result property="type" column="type" />
+		<association property="dept" javaType="Dept"><!-- 前一个dept为user类属性后一个为实体类 -->
+			<id property="id" column="id" /><!-- 这个可以不写，不写就映射为null，输出的user中没有用到这个所以可以不写 -->
+			<result property="name" column="name" /><!-- 通过映射，映射到dept的name -->
+		</association>
+	</resultMap>
+	<select id="selectUserBySno" parameterType="String" resultMap="UserMap">
+		select sno,username,gender,img,type,tb_dept.name from tb_user left join tb_dept on tb_user.deptno=tb_dept.id
+		where sno=#{sno}
+	</select>
+	
+	<select id="selectUserByUsername" parameterType="String" resultMap="UserMap">
+		select sno,username,gender,img,type,tb_dept.name from tb_user left join tb_dept on tb_user.deptno=tb_dept.id
+		where username=#{username}
+	</select>
+	<select id="selectAllUser" resultMap="UserMap">
+		select sno,username,gender,img,type,tb_dept.name from tb_user left join tb_dept on tb_user.deptno=tb_dept.id
+	</select>
+	<select id="selectUserBySnoAndPassword" parameterType="String" resultMap="UserMap">
+		select sno,username,gender,img,type,tb_dept.name from tb_user left join tb_dept on tb_user.deptno=tb_dept.id
+		where sno=#{sno} and password=#{password}
+	</select>
+	<select id="selectByCondition" resultType="user" resultMap="UserMap">
+		select sno,username,gender,img,type,tb_dept.name from tb_user left join tb_dept on tb_user.deptno=tb_dept.id where 1=1
+		<if test="sno != null and sno != ''">
+			and sno=#{sno}
+		</if>
+		<if test="username != null and username != ''">
+			and username like concat('%',#{username},'%');
+		</if>
+	</select>
+</mapper>

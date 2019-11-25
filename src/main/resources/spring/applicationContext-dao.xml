@@ -1,0 +1,143 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd 
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd 
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop.xsd 
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx.xsd ">
+	<!-- 加载数据库连接参数 -->
+	<context:property-placeholder location = "classpath:db.properties"/>
+	<!-- DBCP数据源 -->
+	<!-- <bean id = "dataSource" class = "org.apache.commons.dbcp.BasicDataSource" 
+		destroy-method="close">
+		<property name="driverClassName" value="${jdbc.driver}"/> 
+		<property name="url" value="${jdbc.url}"/> 
+		<property name="username" value="${jdbc.username}"/> 
+		<property name="password" value="${jdbc.password}"/> 
+		<property name="maxActive" value="30" />
+		<property name="maxIdle" value="5" />
+	</bean> -->
+	
+	<!-- 配置C3P0数据源 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <!--驱动类名 -->
+        <property name="driverClass" value="${jdbc.driver}" />
+        <!-- url -->
+        <property name="jdbcUrl" value="${jdbc.url}" />
+        <!-- 用户名 -->
+        <property name="user" value="${jdbc.uid}" />
+        <!-- 密码 -->
+        <property name="password" value="${jdbc.pwd}" />
+        <!-- 当连接池中的连接耗尽的时候c3p0一次同时获取的连接数  -->
+        <property name="acquireIncrement" value="5"></property>
+        <!-- 初始连接池大小 -->
+        <property name="initialPoolSize" value="10"></property>
+        <!-- 连接池中连接最小个数 -->
+        <property name="minPoolSize" value="5"></property>
+        <!-- 连接池中连接最大个数 -->
+        <property name="maxPoolSize" value="50"></property>
+    </bean>
+	
+	<!-- 会话工厂bean sqlSessionFactoryBean，可以引入mybatis文件，这里没必要 -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 数据源 -->
+        <property name="dataSource" ref="dataSource"></property>
+        <!-- 别名 -->
+        <property name="typeAliasesPackage" value="com.syh.bean"></property>
+        <!-- sql映射文件路径 -->
+        <property name="mapperLocations" value="classpath*:com/syh/dao/*Dao.xml"></property>
+    </bean>
+    <!-- 自动扫描对象关系映射 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!-- 指定要自动扫描接口的基础包，实现接口(动态代理) -->
+        <property name="basePackage" value="com.syh.dao"></property>
+    </bean>
+
+    <!-- 配置需要加载到IOC容器中的类,在上面 自动扫描关系对象映射中已经映射的不能重复映射(dao层) -->
+    <bean id="dept" class="com.syh.bean.Dept"></bean>
+    <bean id="column" class="com.syh.bean.Column"></bean>
+    <bean id="user" class="com.syh.bean.User">
+        <property name="dept" ref="dept"></property>
+    </bean>
+    <bean id="like" class="com.syh.bean.Like">
+        <property name="stu" ref="user"></property>
+    </bean>
+    <bean id="comment" class="com.syh.bean.Comment">
+        <property name="stu" ref="user"></property>
+    </bean>
+    <bean id="repost" class="com.syh.bean.Repost">
+        <property name="stu" ref="user"></property>
+    </bean>
+    <bean id="liuYan" class="com.syh.bean.LiuYan">
+        <property name="likes" ref="like"></property>
+        <property name="reposts" ref="repost"></property>
+        <property name="comments" ref="comment"></property>
+        <property name="colName" ref="column"></property>
+        <property name="stu" ref="user"></property>
+    </bean>
+    <bean id="gunTu" class="com.syh.bean.GunTu">
+        <property name="likes" ref="like"></property>
+        <property name="comments" ref="comment"></property>
+    </bean>
+
+    <bean id="userServiceImpl" class="com.syh.service.impl.UserServiceImpl">
+        <!-- 第一个userDao为userServiceImpl类中的属性第二个是为了链接到上面的id -->
+        <property name="userDao" ref="userDao"></property>
+    </bean>
+    <bean id="liuYanServiceImpl" class="com.syh.service.impl.LiuYanServiceImpl">
+        <property name="liuYanDao" ref="liuYanDao"></property><!-- 实例化属性 -->
+        <property name="likeDao" ref="likeDao"></property><!-- 实例化属性 -->
+        <property name="commentDao" ref="commentDao"></property><!-- 实例化属性 -->
+    </bean>
+    <bean id="gunTuServiceImpl" class="com.syh.service.impl.GunTuServiceImpl">
+        <property name="gunTuDao" ref="gunTuDao"></property>
+    </bean>
+
+    <!-- 自动注入老是失败，原因未知 -->
+    <!-- 容器自动扫描IOC组件，@Service,@Component,@Repository,@Controller等这些注解的类，则把这些类注册为bean  -->
+    <!-- <context:component-scan base-package="com.syh.service.impl"></context:component-scan> -->
+
+    <!-- aspectj支持自动代理实现AOP功能，对应@Autowired注解 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+
+    <!-- 声明式事务管理 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="likeTheLiuYan" propagation="REQUIRED" />
+            <tx:method name="commentTheLiuYan" propagation="REQUIRED" />
+            <tx:method name="respostTheLiuYan" propagation="REQUIRED" />
+            <tx:method name="select*" propagation="NEVER" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 利用aop的思想执行事务 -->
+    <aop:config>
+        <aop:pointcut expression="execution(* com.syh.service.*.*(..))" id="pointCut"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut"/>
+    </aop:config>
+
+    <!--支持注解驱动的事务管理，指定事务管理器 -->
+    <!-- <tx:annotation-driven transaction-manager="transactionManager"/> -->
+    
+<!-- 上传文件 -->  
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+    <property name="defaultEncoding" value="utf-8"/>  
+    <!-- 最大内存大小 -->  
+    <property name="maxInMemorySize" value="10240"/>  
+    <!-- 最大文件大小，-1为不限制大小 -->  
+    <property name="maxUploadSize" value="-1"/>  
+    </bean>  
+
+</beans>

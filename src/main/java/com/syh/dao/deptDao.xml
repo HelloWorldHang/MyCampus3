@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syh.dao.DeptDao">
+	<resultMap type="user" id="UserMap">
+		<id property="sno" column="sno" />
+		<result property="username" column="username" />
+		<result property="gender" column="gender" />
+		<result property="img" column="img" />
+		<result property="type" column="type" />
+	</resultMap>
+	
+	<resultMap type="dept" id="DeptMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<collection property="stu" ofType="User" resultMap="UserMap" >
+		</collection>
+	</resultMap>
+	<select id="selectAllStuByDeptno" parameterType="int" resultMap="UserMap">
+		select id,name,tb_user.sno,tb_user.username,tb_user.gender,tb_user.img,tb_user.type
+		from tb_dept 
+		inner join tb_user on tb_dept.id=tb_user.deptno
+		where tb_dept.id=#{id}
+	</select>
+</mapper>

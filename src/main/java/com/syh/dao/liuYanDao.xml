@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syh.dao.LiuYanDao">
+	<!-- 在like comment repost 类中都加入了User属性 -->
+	<resultMap type="user" id="LikeUserMap">
+		<id property="sno" column="likesno" />
+		<result property="username" column="likeusername" />
+	</resultMap>
+	<resultMap type="user" id="RepostUserMap">
+		<id property="sno" column="repostsno" />
+		<result property="username" column="repostusername" />
+	</resultMap>
+	<resultMap type="user" id="CommentUserMap">
+		<id property="sno" column="commentsno" />
+		<result property="username" column="commentusername" />
+		<result property="img" column="commentuserimg" />
+	</resultMap>
+	<!-- 将点赞转发评论的用户的sno做了两次映射，即${like.sno}==${like.stu.sno} -->
+	<resultMap type="LiuYan" id="LiuYanMap">
+		<id property="id" column="id"/>
+		<!-- 留言中对应的有留言者的sno和点赞者的sno所以要起别名 -->
+		<result property="sno" column="liuyansno"/>
+		<result property="liuyan" column="liuyan"/>
+		<result property="lamount" column="lamount"/>
+		<result property="camount" column="camount"/>
+		<result property="ramount" column="ramount"/>
+		<result property="keyword" column="keyword"/>
+		<result property="col" column="col"/>
+		<association property="colName" javaType="Column">
+				<result property="name" column="name"/>
+		</association>
+		<association property="stu" javaType="User">
+				<result property="img" column="img"/>
+				<result property="username" column="username"/>
+		</association>
+		<!-- 一个留言对应多个点赞 -->
+		<collection property="likes" ofType="Like">
+		<!-- 此处没有将lid传给like类的对应属性 -->
+		<!-- <result property="lid" column="lid"/> -->
+		<result property="sno" column="likesno" />
+			<!-- 一个赞对应一个用户 -->
+			<association property="stu" javaType="User" resultMap="LikeUserMap">
+				
+			</association>
+		</collection>
+		<!-- 一个留言对应多个转发 -->
+		<collection property="reposts" ofType="Repost">
+			<!-- 此处没有将lid传给repost类的对应属性 -->
+			<!-- <result property="lid" column="lid"/> -->
+			<result property="sno" column="repostsno" />
+			<!-- 一个转发对应一个用户 -->
+			<association property="stu" javaType="User" resultMap="RepostUserMap">
+				
+			</association>
+		</collection>
+		<!-- 一个留言对应多个评论 -->
+		<collection property="comments" ofType="Comment">
+			<result property="sno" column="commentsno" />
+			<result property="comment" column="comment"/>
+			<!-- 一个评论对应一个用户 -->
+			<association property="stu" javaType="User" resultMap="CommentUserMap">
+				
+			</association>
+		</collection>
+	</resultMap>
+	<select id="selectById" parameterType="int" resultMap="LiuYanMap">
+		SELECT distinct tb_liuyan.id,col,tb_liuyan.sno liuyansno,tb_user.img,tb_user.username,liuyan,tb_comment.comment,keyword,tb_column.name,lamount,ramount,camount,likeUser.sno likesno,likeUser.username likeusername,
+		commentUser.sno commentsno,commentUser.username commentusername,commentUser.img commentuserimg,
+		repostUser.sno repostsno,repostUser.username as repostusername 
+		 from tb_liuyan 
+		 left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_like on tb_liuyan.id = tb_like.lid 
+		left join tb_user as likeUser on tb_like.sno = likeUser.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		left join tb_comment on tb_liuyan.id = tb_comment.lid 
+		left join tb_user as commentUser on tb_comment.sno = commentUser.sno
+		left join tb_repost on tb_liuyan.id = tb_repost.lid 
+		left join tb_user as repostUser on tb_repost.sno = repostUser.sno
+		where tb_liuyan.id =#{id} 
+	</select>
+	<select id="selectByColumn" resultMap="LiuYanMap">
+		SELECT distinct tb_liuyan.id,col,tb_liuyan.sno liuyansno,tb_user.img,tb_user.username,liuyan,tb_comment.comment,keyword,tb_column.name,lamount,ramount,camount,likeUser.sno likesno,likeUser.username likeusername,
+		commentUser.sno commentsno,commentUser.username commentusername,commentUser.img commentuserimg,
+		repostUser.sno repostsno,repostUser.username as repostusername 
+		 from tb_liuyan 
+		 left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_like on tb_liuyan.id = tb_like.lid 
+		left join tb_user as likeUser on tb_like.sno = likeUser.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		left join tb_comment on tb_liuyan.id = tb_comment.lid 
+		left join tb_user as commentUser on tb_comment.sno = commentUser.sno
+		left join tb_repost on tb_liuyan.id = tb_repost.lid 
+		left join tb_user as repostUser on tb_repost.sno = repostUser.sno 
+		where tb_liuyan.col=#{col} 
+		order by tb_liuyan.id desc
+	</select>
+	<select id="selectBySno" resultMap="LiuYanMap">
+		SELECT distinct tb_liuyan.id,col,tb_liuyan.sno liuyansno,tb_user.img,tb_user.username,liuyan,tb_comment.comment,keyword,tb_column.name,lamount,ramount,camount,likeUser.sno likesno,likeUser.username likeusername,
+		commentUser.sno commentsno,commentUser.username commentusername,commentUser.img commentuserimg,
+		repostUser.sno repostsno,repostUser.username as repostusername 
+		 from tb_liuyan 
+		 left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_like on tb_liuyan.id = tb_like.lid 
+		left join tb_user as likeUser on tb_like.sno = likeUser.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		left join tb_comment on tb_liuyan.id = tb_comment.lid 
+		left join tb_user as commentUser on tb_comment.sno = commentUser.sno
+		left join tb_repost on tb_liuyan.id = tb_repost.lid 
+		left join tb_user as repostUser on tb_repost.sno = repostUser.sno
+		where tb_liuyan.sno=#{sno} 
+		order by tb_liuyan.id desc
+	</select>
+	<select id="selectAll" resultMap="LiuYanMap">
+		SELECT distinct tb_liuyan.id,col,tb_liuyan.sno liuyansno,tb_user.img,tb_user.username,liuyan,tb_comment.comment,keyword,tb_column.name,lamount,ramount,camount,likeUser.sno likesno,likeUser.username likeusername,
+		commentUser.sno commentsno,commentUser.username commentusername,commentUser.img commentuserimg,
+		repostUser.sno repostsno,repostUser.username as repostusername 
+		 from tb_liuyan 
+		 left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_like on tb_liuyan.id = tb_like.lid 
+		left join tb_user as likeUser on tb_like.sno = likeUser.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		left join tb_comment on tb_liuyan.id = tb_comment.lid 
+		left join tb_user as commentUser on tb_comment.sno = commentUser.sno
+		left join tb_repost on tb_liuyan.id = tb_repost.lid 
+		left join tb_user as repostUser on tb_repost.sno = repostUser.sno 
+		order by tb_liuyan.id desc
+	</select>
+	<select id="selectByCondition" resultMap="LiuYanMap">
+		SELECT distinct tb_liuyan.id,col,tb_liuyan.sno liuyansno,tb_user.img,tb_user.username,liuyan,tb_comment.comment,keyword,tb_column.name,lamount,ramount,camount,likeUser.sno likesno,likeUser.username likeusername,
+		commentUser.sno commentsno,commentUser.username commentusername,commentUser.img commentuserimg,
+		repostUser.sno repostsno,repostUser.username as repostusername 
+		 from tb_liuyan 
+		 left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_like on tb_liuyan.id = tb_like.lid 
+		left join tb_user as likeUser on tb_like.sno = likeUser.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		left join tb_comment on tb_liuyan.id = tb_comment.lid 
+		left join tb_user as commentUser on tb_comment.sno = commentUser.sno
+		left join tb_repost on tb_liuyan.id = tb_repost.lid 
+		left join tb_user as repostUser on tb_repost.sno = repostUser.sno 
+		where 1=1 
+		<if test="username != null and username != ''">
+			and tb_user.username like concat('%',#{username},'%')
+		</if>
+		<if test="liuYan.keyword != null and liuYan.keyword != ''">
+			and keyword like concat('%',#{liuYan.keyword},'%')
+		</if>
+		 order by tb_liuyan.id desc
+	</select>
+</mapper>

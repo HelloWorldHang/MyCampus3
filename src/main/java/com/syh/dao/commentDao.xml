@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.syh.dao.CommentDao">
+	<select id="selectCommentLiuYanBySno" parameterType="string" resultMap="com.syh.dao.LiuYanDao.LiuYanMap">
+		SELECT  tb_liuyan.id,tb_user.img,tb_liuyan.sno liuyansno,tb_user.username,liuyan,keyword,tb_column.name,lamount,ramount,camount 
+		 from tb_like 
+		left join tb_liuyan ON tb_like.lid = tb_liuyan.id 
+		left join tb_user on tb_liuyan.sno = tb_user.sno
+		left join tb_column on tb_liuyan.col=tb_column.id 
+		where tb_like.sno=#{sno}
+	</select>
+</mapper>

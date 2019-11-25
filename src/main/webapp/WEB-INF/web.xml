@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="WebApp_ID" version="3.0">
+
+    <!-- 启动Tomcat时首先加载该文件， -->
+    <display-name>springmvc</display-name>
+    <!-- 启动一个WEB项目的时候,容器(如:Tomcat)会去读它的配置文件web.xml.读两个节点:
+    <listener></listener> 和 <context-param></context-param> -->
+    <!-- 配置ServletContext(上下文),这个WEB项目所有部分都将共享这个上下文. -->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>classpath*:/spring/applicationContext-*.xml</param-value>
+    </context-param>
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+    <!-- 所有的servlet统一交给springmvc管理 -->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <!-- 读取springmvc.xml文件配置servlet的一些初始参数 -->
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>classpath*:/spring/springmvc.xml</param-value>
+        </init-param>
+    </servlet>
+    <!-- 配置请求的URL格式 -->
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <url-pattern>*.do</url-pattern>
+    </servlet-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>login.jsp</welcome-file>
+        <welcome-file>default.html</welcome-file>
+        <welcome-file>default.htm</welcome-file>
+        <welcome-file>default.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>
