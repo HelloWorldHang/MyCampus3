@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -31,6 +32,12 @@ public class UserServlet {
 	LiuYanService liuYanService;
 	@Autowired
 	GunTuService gunTuService;
+
+	@PostConstruct
+	public void test() {
+		System.out.println("yunhang test");
+	}
+
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String login(@RequestParam String sno,@RequestParam String pwd,Model model,HttpSession session) {
 		User user = userService.selectUserBySnoAndPassword(sno, pwd);

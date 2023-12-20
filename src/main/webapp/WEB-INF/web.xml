@@ -10,7 +10,7 @@
     <!-- 配置ServletContext(上下文),这个WEB项目所有部分都将共享这个上下文. -->
     <context-param>
         <param-name>contextConfigLocation</param-name>
-        <param-value>classpath*:/spring/applicationContext-*.xml</param-value>
+        <param-value>classpath:/spring/applicationContext-dao.xml</param-value>
     </context-param>
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -22,7 +22,7 @@
         <!-- 读取springmvc.xml文件配置servlet的一些初始参数 -->
         <init-param>
             <param-name>contextConfigLocation</param-name>
-            <param-value>classpath*:/spring/springmvc.xml</param-value>
+            <param-value>classpath:/spring/springmvc.xml</param-value>
         </init-param>
     </servlet>
     <!-- 配置请求的URL格式 -->
@@ -32,12 +32,6 @@
     </servlet-mapping>
 
     <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-        <welcome-file>index.htm</welcome-file>
-        <welcome-file>index.jsp</welcome-file>
         <welcome-file>login.jsp</welcome-file>
-        <welcome-file>default.html</welcome-file>
-        <welcome-file>default.htm</welcome-file>
-        <welcome-file>default.jsp</welcome-file>
     </welcome-file-list>
 </web-app>

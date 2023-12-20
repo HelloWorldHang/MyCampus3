@@ -6,6 +6,10 @@ public class Dept {
 	private Integer id;
 	private String name;
 	private List<User> stu;
+
+	public void init() {
+		System.out.println("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+	}
 	
 	public Dept() {
 		super();

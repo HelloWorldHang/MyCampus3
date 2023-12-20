@@ -63,7 +63,7 @@
     </bean>
 
     <!-- 配置需要加载到IOC容器中的类,在上面 自动扫描关系对象映射中已经映射的不能重复映射(dao层) -->
-    <bean id="dept" class="com.syh.bean.Dept"></bean>
+    <bean id="dept" class="com.syh.bean.Dept" init-method="init"></bean>
     <bean id="column" class="com.syh.bean.Column"></bean>
     <bean id="user" class="com.syh.bean.User">
         <property name="dept" ref="dept"></property>
